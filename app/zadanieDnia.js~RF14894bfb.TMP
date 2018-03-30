@@ -1,0 +1,46 @@
+//Twój kod
+
+const express = require('express');
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+var path = require('path');
+const app = express();
+
+app.use(bodyParser.urlencoded());
+app.use(express.static('./public/zadanieDnia/'));
+app.use(cookieParser());
+const conversation = [];
+
+app.post('/cookie/save', (req, res) => {
+    const { mypost } = req.body;
+    conversation.push(mypost);
+    res.cookie('posts');
+    addComment(req.cookies.posts, mypost);
+    res.send("<a href = '/'>Post added.</a>");
+
+});
+
+app.get('/', (req, res) => {
+    const myCookie = req.cookies.posts;
+    res.send('<p>' + readComments(myCookie) + '<p></br>')
+});
+
+app.get('/add', (req, res) => {
+    res.sendFile(__dirname + '/public/zadanieDnia/add.html')
+});
+
+
+function readComments(commentsCookieValue) {
+    return commentsCookieValue ? JSON.parse(commentsCookieValue) : [];
+}
+
+function addComment(commentsCookieValue, newComment) {
+    const comments = readComments(commentsCookieValue);
+    comments.push(newComment);
+    return JSON.stringify(comments);
+}
+
+
+app.listen(3000, () => {
+    console.log("Listening on port 3000");
+});//Twój kod
